@@ -23,6 +23,12 @@
     "ai"
   ],
   "license": "MIT",
+  "files": ["dist", "README.md", "LICENSE", ".env.example"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/niceBhawormo/gupshup-mcp"
+  },
+  "homepage": "https://github.com/niceBhawormo/gupshup-mcp#readme",
   "engines": {
     "node": ">=18.0.0"
   },
