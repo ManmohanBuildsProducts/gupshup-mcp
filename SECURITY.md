@@ -8,7 +8,7 @@ Only the latest `master` branch and latest tagged release are supported.
 
 Do not open public issues for security bugs.
 
-Report privately by email to: `security@manmohanbuildsproducts.com`.
+Report privately by email to: `mcharan@es.iitr.ac.in`.
 
 Include:
 - Summary of the issue
