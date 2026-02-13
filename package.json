@@ -1,7 +1,7 @@
 {
   "name": "gupshup-mcp",
-  "version": "0.1.0",
-  "description": "MCP server for Gupshup WhatsApp Business API — template management, messaging, and analytics",
+  "version": "0.2.0",
+  "description": "MCP server for Gupshup Enterprise Gateway API (SMS and WhatsApp)",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -11,6 +11,7 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
+    "smoke": "node scripts/smoke-enterprise.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "prepublishOnly": "npm run build"
@@ -18,17 +19,24 @@
   "keywords": [
     "mcp",
     "gupshup",
-    "whatsapp",
-    "template",
-    "ai"
+    "enterprise",
+    "sms",
+    "whatsapp"
   ],
   "license": "MIT",
-  "files": ["dist", "README.md", "LICENSE", ".env.example"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    ".env.example",
+    "CHANGELOG.md",
+    "SECURITY.md"
+  ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/niceBhawormo/gupshup-mcp"
+    "url": "https://github.com/ManmohanBuildsProducts/gupshup-mcp.git"
   },
-  "homepage": "https://github.com/niceBhawormo/gupshup-mcp#readme",
+  "homepage": "https://github.com/ManmohanBuildsProducts/gupshup-mcp#readme",
   "engines": {
     "node": ">=18.0.0"
   },

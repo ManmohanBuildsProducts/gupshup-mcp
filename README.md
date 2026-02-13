@@ -1,94 +1,197 @@
-# gupshup-mcp
+# gupshup-mcp (Enterprise Gateway)
 
-MCP server for Gupshup WhatsApp Business API -- template management, messaging, and analytics.
+MCP server for Gupshup Enterprise Gateway API (`enterprise.smsgupshup.com` and `media.smsgupshup.com`).
 
-## Quick Start
+## What Changed
 
-Add to your Claude Code MCP config (`~/.claude.json` or project `.mcp.json`):
-
-```json
-{
-  "mcpServers": {
-    "gupshup": {
-      "command": "npx",
-      "args": ["-y", "gupshup-mcp"],
-      "env": {
-        "GUPSHUP_PARTNER_TOKEN": "your-partner-jwt-token",
-        "GUPSHUP_DEFAULT_APP_ID": "your-app-id"
-      }
-    }
-  }
-}
-```
-
-Minimal config (pass `appId` per tool call instead):
-
-```json
-{
-  "mcpServers": {
-    "gupshup": {
-      "command": "npx",
-      "args": ["-y", "gupshup-mcp"],
-      "env": {
-        "GUPSHUP_PARTNER_TOKEN": "your-partner-jwt-token"
-      }
-    }
-  }
-}
-```
+This server now targets Enterprise credentials (`userid/password`) and Gateway methods like `SENDMESSAGE` and `OPT_IN`.
 
 ## Environment Variables
 
 | Variable | Required | Description |
-|----------|----------|-------------|
-| `GUPSHUP_PARTNER_TOKEN` | Yes | Partner JWT token from Gupshup dashboard |
-| `GUPSHUP_DEFAULT_APP_ID` | No | Default app ID. If set, app-scope tools use this when `appId` is omitted |
-| `GUPSHUP_BASE_URL` | No | API base URL. Defaults to `https://partner.gupshup.io` |
+|---|---|---|
+| `GUPSHUP_USER_ID` | SMS only | SMS gateway user id |
+| `GUPSHUP_PASSWORD` | SMS only | SMS gateway password |
+| `GUPSHUP_WHATSAPP_USER_ID` | WhatsApp only | WhatsApp gateway user id |
+| `GUPSHUP_WHATSAPP_PASSWORD` | WhatsApp only | WhatsApp gateway password |
+| `GUPSHUP_API_ENDPOINT` | No | Default `https://enterprise.smsgupshup.com/GatewayAPI/rest` |
+| `GUPSHUP_WHATSAPP_API_ENDPOINT` | No | Default `https://media.smsgupshup.com/GatewayAPI/rest` |
+| `GUPSHUP_LOG_LEVEL` | No | `off` (default), `info`, `debug` |
+| `GUPSHUP_REDACT_LOGS` | No | `true` by default; masks secrets/phone/message in logs |
+| `GUPSHUP_MAX_RETRIES` | No | Retry count for transient errors (default `3`) |
+| `GUPSHUP_RETRY_BASE_MS` | No | Exponential backoff base delay (default `300`) |
+| `GUPSHUP_RETRY_MAX_MS` | No | Max per-retry delay cap (default `5000`) |
+| `GUPSHUP_RETRY_JITTER_MS` | No | Random jitter to spread retries (default `150`) |
 
-## Tools Reference
+You must set at least one credential pair:
+- SMS: `GUPSHUP_USER_ID` + `GUPSHUP_PASSWORD`
+- WhatsApp: `GUPSHUP_WHATSAPP_USER_ID` + `GUPSHUP_WHATSAPP_PASSWORD`
 
-| Tool | Category | Description |
-|------|----------|-------------|
-| `list_templates` | Templates | List all templates with approval status |
-| `create_template` | Templates | Create and submit a new template for approval |
-| `edit_template` | Templates | Edit existing template (resubmits for approval) |
-| `delete_template` | Templates | Permanently delete a template |
-| `upload_media` | Templates | Upload media for template headers/samples |
-| `send_template_message` | Messaging | Send approved template to a WhatsApp user |
-| `enable_template_analytics` | Analytics | Enable/disable template analytics on Meta |
-| `get_template_analytics` | Analytics | Get sent/delivered/read/clicked metrics per template |
-| `compare_templates` | Analytics | Compare performance across templates |
-| `get_app_health` | Analytics | Get health, quality rating, limits, wallet balance |
-| `list_apps` | Utility | List all apps/WABAs on your partner account |
-| `get_usage_summary` | Utility | Daily usage breakdown for a date range |
-| `get_app_token` | Utility | Debug: fetch app-level access token |
+## Secure Local Setup
 
-## Example Usage
+1. Create local untracked env file:
 
-Just ask in natural language:
+```bash
+cp .env.example .env.enterprise
+```
 
-- "List all my WhatsApp templates"
-- "Create a new marketing template called summer_sale with body 'Hi {{1}}, check out our {{2}} sale!'"
-- "Show me delivery analytics for template abc-123 over the last 30 days"
-- "Send the order_shipped template to +919886912227 with params Rahul, ORD-456"
+2. Fill secrets in `.env.enterprise`.
 
-## Authentication
+3. Load env into shell:
 
-Gupshup uses a two-token model:
+```bash
+set -a
+source .env.enterprise
+set +a
+```
 
-1. **Partner Token (JWT)** -- you provide this via the `GUPSHUP_PARTNER_TOKEN` env var. Get it from the Gupshup dashboard.
-2. **App Tokens (`sk_*`)** -- the server auto-fetches and caches these internally using your partner token. No manual setup needed.
+`.env` files are ignored by git; do not commit credentials.
 
-You only configure the partner token. Everything else is handled automatically.
+## Claude Code MCP Config
 
-## Development
+Use local build path:
+
+```json
+{
+  "mcpServers": {
+    "gupshup": {
+      "command": "node",
+      "args": ["/Users/mac/gupshup-mcp/dist/index.js"],
+      "env": {
+        "GUPSHUP_USER_ID": "your-sms-user-id",
+        "GUPSHUP_PASSWORD": "your-sms-password",
+        "GUPSHUP_WHATSAPP_USER_ID": "your-wa-user-id",
+        "GUPSHUP_WHATSAPP_PASSWORD": "your-wa-password"
+      }
+    }
+  }
+}
+```
+
+## Tools
+
+- `check_gateway_credentials`: checks if SMS/WhatsApp creds are configured.
+- `whatsapp_opt_in`: runs `OPT_IN` for a phone number.
+- `whatsapp_send_template`: sends template/HSM message.
+- `whatsapp_send_text`: sends a plain WhatsApp message.
+- `sms_send_text`: sends SMS text.
+- `gateway_raw_request`: advanced direct method call with auto-injected credentials.
+
+## Tool Examples
+
+`check_gateway_credentials`
+
+```json
+{}
+```
+
+`whatsapp_opt_in`
+
+```json
+{
+  "phoneNumber": "919999999999"
+}
+```
+
+`whatsapp_send_template`
+
+```json
+{
+  "sendTo": "919999999999",
+  "templateId": "7091229",
+  "variables": {
+    "var1": "Alice",
+    "var2": "ORD-123"
+  }
+}
+```
+
+`whatsapp_send_text`
+
+```json
+{
+  "sendTo": "919999999999",
+  "message": "Hello from gupshup-mcp"
+}
+```
+
+`sms_send_text`
+
+```json
+{
+  "sendTo": "919999999999",
+  "message": "Your OTP is 123456"
+}
+```
+
+`gateway_raw_request`
+
+```json
+{
+  "endpoint": "whatsapp",
+  "httpMethod": "POST",
+  "requestParams": {
+    "method": "SENDMESSAGE",
+    "send_to": "919999999999",
+    "format": "Text",
+    "msg_type": "TEXT",
+    "isTemplate": true,
+    "isHSM": true,
+    "template_id": "7091229",
+    "v": "1.1",
+    "auth_scheme": "plain",
+    "data_encoding": "TEXT",
+    "var1": "Alice",
+    "var2": "ORD-123"
+  }
+}
+```
+
+## Testing
 
 ```bash
 npm install
 npm test
 npm run build
+npm run smoke -- check
+```
+
+Then run incremental live checks:
+
+```bash
+npm run smoke -- opt-in 91XXXXXXXXXX
+npm run smoke -- send-template 91XXXXXXXXXX YOUR_TEMPLATE_ID var1=Alice var2=Order123
+npm run smoke -- send-sms 91XXXXXXXXXX "Test message"
+```
+
+## Logging And Retry Behavior
+
+- Redacted logging: when `GUPSHUP_LOG_LEVEL` is `info` or `debug`, logs are emitted as JSON lines.
+- With `GUPSHUP_REDACT_LOGS=true`, credentials, phone numbers, and message bodies are masked.
+- Retry/backoff applies to transient failures:
+  - HTTP: `429`, `500`, `502`, `503`, `504`
+  - Network/fetch/timeout errors
+- No retry for auth/validation failures such as `400`/`401`/`403`.
+
+Live gateway smoke test (after env loaded):
+
+```bash
+curl -sS -G "$GUPSHUP_WHATSAPP_API_ENDPOINT" \
+  --data-urlencode "userid=$GUPSHUP_WHATSAPP_USER_ID" \
+  --data-urlencode "password=$GUPSHUP_WHATSAPP_PASSWORD" \
+  --data-urlencode "method=OPT_IN" \
+  --data-urlencode "phone_number=91XXXXXXXXXX" \
+  --data-urlencode "v=1.1" \
+  --data-urlencode "format=json" \
+  --data-urlencode "auth_scheme=plain" \
+  --data-urlencode "channel=WHATSAPP"
 ```
 
 ## License
 
 [MIT](LICENSE)
+
+## Security And Releases
+
+- Security policy: [SECURITY.md](SECURITY.md)
+- Release notes: [CHANGELOG.md](CHANGELOG.md)

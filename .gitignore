@@ -1,4 +1,8 @@
 node_modules/
 dist/
-.env
 *.tgz
+
+# Local secrets
+.env
+.env.*
+!.env.example
