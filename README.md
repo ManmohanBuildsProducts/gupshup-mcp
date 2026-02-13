@@ -2,6 +2,15 @@
 
 MCP server for Gupshup Enterprise Gateway API (`enterprise.smsgupshup.com` and `media.smsgupshup.com`).
 
+## Breaking Change: Partner API vs Enterprise Gateway
+
+This repo has two incompatible lines:
+
+- **Enterprise Gateway (current)**: use `v0.2.0+` (this branch). Uses `GUPSHUP_USER_ID` / `GUPSHUP_PASSWORD` and `GUPSHUP_WHATSAPP_USER_ID` / `GUPSHUP_WHATSAPP_PASSWORD`.
+- **Partner API (legacy)**: use `v0.1.0` tag. It used `partner.gupshup.io` and a `GUPSHUP_PARTNER_TOKEN` JWT and had a different set of tools.
+
+If you’re using `enterprise.smsgupshup.com` / `media.smsgupshup.com`, you want **Enterprise Gateway** (`v0.2.0+`).
+
 ## What Changed
 
 This server now targets Enterprise credentials (`userid/password`) and Gateway methods like `SENDMESSAGE` and `OPT_IN`.
