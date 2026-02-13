@@ -76,4 +76,15 @@ describe("TokenManager", () => {
 
     await expect(manager.getAppToken("bad-app")).rejects.toThrow();
   });
+
+  it("throws descriptive error on unexpected token response shape", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ status: "success", unexpected: "shape" }),
+    });
+
+    await expect(manager.getAppToken("bad-shape")).rejects.toThrow(
+      "Unexpected token response"
+    );
+  });
 });

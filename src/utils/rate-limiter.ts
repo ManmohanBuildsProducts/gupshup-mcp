@@ -31,9 +31,14 @@ export class RateLimiter {
     return DEFAULT_LIMIT;
   }
 
+  private stripQuery(endpoint: string): string {
+    const idx = endpoint.indexOf("?");
+    return idx === -1 ? endpoint : endpoint.slice(0, idx);
+  }
+
   async acquire(endpoint: string): Promise<boolean> {
     const config = this.getLimitConfig(endpoint);
-    const key = endpoint;
+    const key = this.stripQuery(endpoint);
     const now = Date.now();
 
     let bucket = this.buckets.get(key);
