@@ -46,11 +46,14 @@ describe("get_app_token", () => {
   const mockClient = { tokenManager: mockTokenManager };
   beforeEach(() => vi.resetAllMocks());
 
-  it("returns the fetched app token", async () => {
+  it("returns masked app token", async () => {
     mockTokenManager.getAppToken.mockResolvedValue("sk_debug_token");
     const handler = makeGetAppToken(mockClient as any);
     const result = await handler({ appId: "test-app" });
 
-    expect(result.content[0].text).toContain("sk_debug_token");
+    expect(result.content[0].text).not.toContain("sk_debug_token");
+    expect(result.content[0].text).toContain("sk_");
+    expect(result.content[0].text).toContain("oken");
+    expect(result.content[0].text).toContain("***");
   });
 });

@@ -48,7 +48,8 @@ export class GupshupClient {
     method: string,
     path: string,
     appId: string | undefined,
-    body?: Record<string, unknown>
+    body?: Record<string, unknown>,
+    authStyle: "token" | "authorization" = "token"
   ): Promise<unknown> {
     const resolvedAppId = this.resolveAppId(appId);
     const token = await this.tokenManager.getAppToken(resolvedAppId);
@@ -57,8 +58,10 @@ export class GupshupClient {
     await this.rateLimiter.acquire(path);
 
     const headers: Record<string, string> = {
-      token,
       accept: "application/json",
+      ...(authStyle === "authorization"
+        ? { Authorization: token }
+        : { token }),
     };
 
     const options: RequestInit = { method, headers };

@@ -43,9 +43,19 @@ export class TokenManager {
     }
 
     const data = await response.json();
-    const token = (data as any).token.token as string;
-    this.appTokenCache.set(appId, token);
-    return token;
+    const tokenObj =
+      data && typeof data === "object" ? (data as Record<string, unknown>).token : undefined;
+    const tokenStr =
+      tokenObj && typeof tokenObj === "object"
+        ? (tokenObj as Record<string, unknown>).token
+        : undefined;
+    if (typeof tokenStr !== "string" || !tokenStr) {
+      throw new Error(
+        `Unexpected token response for ${appId}: missing token field in ${JSON.stringify(data)}`
+      );
+    }
+    this.appTokenCache.set(appId, tokenStr);
+    return tokenStr;
   }
 
   clearCache(appId?: string): void {

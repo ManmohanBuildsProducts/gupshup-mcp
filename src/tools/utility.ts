@@ -35,11 +35,16 @@ export function makeGetAppToken(client: GupshupClient) {
   return async (params: { appId: string }): Promise<ToolResult> => {
     const token = await client.tokenManager.getAppToken(params.appId);
 
+    const masked =
+      token.length > 8
+        ? `${token.slice(0, 3)}${"*".repeat(token.length - 7)}${token.slice(-4)}`
+        : "****";
+
     return {
       content: [
         {
           type: "text",
-          text: `App token for ${params.appId}: ${token}\n\nThis token is used internally for all app-scope API calls. It is cached and idempotent.`,
+          text: `App token for ${params.appId}: ${masked}\n\nToken is valid and cached. It is used internally for all app-scope API calls.`,
         },
       ],
     };
