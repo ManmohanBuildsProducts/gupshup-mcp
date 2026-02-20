@@ -132,7 +132,7 @@ export class GupshupEnterpriseClient {
       format: input.format ?? "text",
       msg_type: input.msgType ?? "TEXT",
       auth_scheme: "plain",
-      message: input.message,
+      msg: input.message,
     };
 
     return this.gatewayRequest({ endpoint: "whatsapp", httpMethod: "POST", params });
