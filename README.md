@@ -38,23 +38,23 @@ You must set at least one credential pair:
 
 ## Secure Local Setup
 
-1. Create local untracked env file:
+Copy the tracked template and fill credentials in a local file:
 
 ```bash
-cp .env.example .env.enterprise
+cp .env.example .env
 ```
 
-2. Fill secrets in `.env.enterprise`.
+Edit `.env` and replace the placeholder values (`your-sms-user-id`, `your-sms-password`, and the WhatsApp pair). `.env.example` is the only env file that belongs in git.
 
-3. Load env into shell:
+Load it into the shell for smoke tests:
 
 ```bash
 set -a
-source .env.enterprise
+source .env
 set +a
 ```
 
-`.env` files are ignored by git; do not commit credentials.
+`.gitignore` ignores `.env` and `.env.*`, with an exception so `.env.example` stays tracked. Do not commit credentials.
 
 ## Claude Code MCP Config
 
@@ -76,6 +76,25 @@ Use local build path:
   }
 }
 ```
+
+## Cursor MCP Config
+
+This server is set up for Cursor and Claude Code. In Cursor, add a project config at `.cursor/mcp.json`. It starts the local build and reads secrets from the gitignored `.env` created above. Do not put live passwords in this file.
+
+```json
+{
+  "mcpServers": {
+    "gupshup": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${workspaceFolder}/dist/index.js"],
+      "envFile": "${workspaceFolder}/.env"
+    }
+  }
+}
+```
+
+Run `npm run build` first so `dist/index.js` exists. Restart Cursor after saving the file. A personal config at `~/.cursor/mcp.json` uses the same shape if you want the server outside this repo.
 
 ## Tools
 
