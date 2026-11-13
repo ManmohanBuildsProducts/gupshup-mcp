@@ -2,7 +2,7 @@ node_modules/
 dist/
 *.tgz
 
-# Local secrets
+# Local secrets. .env.example is the only env file that stays tracked.
 .env
 .env.*
 !.env.example

@@ -38,34 +38,82 @@ You must set at least one credential pair:
 
 ## Secure Local Setup
 
-1. Create local untracked env file:
+1. Copy `.env.example` to `.env`:
 
 ```bash
-cp .env.example .env.enterprise
+cp .env.example .env
 ```
 
-2. Fill secrets in `.env.enterprise`.
+2. Fill secrets in `.env`. Keep the placeholder values until you have real Enterprise credentials.
 
-3. Load env into shell:
+3. Load that file into the shell for local smoke tests:
 
 ```bash
 set -a
-source .env.enterprise
+source .env
 set +a
 ```
 
-`.env` files are ignored by git; do not commit credentials.
+`.gitignore` ignores `.env` and `.env.*`. `.env.example` is the only env file that stays tracked. Do not commit credentials.
 
-## Claude Code MCP Config
+The server reads process environment variables. It does not load `.env` on its own. For Cursor, Claude Desktop, and Claude Code, put the same variables in the client MCP config below. Build first with `npm run build` so `dist/index.js` exists, and replace `/absolute/path/to/gupshup-mcp` with the path on your machine.
 
-Use local build path:
+## Cursor MCP Config
+
+Use `.cursor/mcp.json` in this project, or `~/.cursor/mcp.json` for every project.
 
 ```json
 {
   "mcpServers": {
     "gupshup": {
       "command": "node",
-      "args": ["/Users/mac/gupshup-mcp/dist/index.js"],
+      "args": ["/absolute/path/to/gupshup-mcp/dist/index.js"],
+      "env": {
+        "GUPSHUP_USER_ID": "your-sms-user-id",
+        "GUPSHUP_PASSWORD": "your-sms-password",
+        "GUPSHUP_WHATSAPP_USER_ID": "your-wa-user-id",
+        "GUPSHUP_WHATSAPP_PASSWORD": "your-wa-password"
+      }
+    }
+  }
+}
+```
+
+## Claude Desktop MCP Config
+
+Edit the Claude Desktop config file:
+
+- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+- Linux: `~/.config/Claude/claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "gupshup": {
+      "command": "node",
+      "args": ["/absolute/path/to/gupshup-mcp/dist/index.js"],
+      "env": {
+        "GUPSHUP_USER_ID": "your-sms-user-id",
+        "GUPSHUP_PASSWORD": "your-sms-password",
+        "GUPSHUP_WHATSAPP_USER_ID": "your-wa-user-id",
+        "GUPSHUP_WHATSAPP_PASSWORD": "your-wa-password"
+      }
+    }
+  }
+}
+```
+
+Quit and reopen Claude Desktop after saving so it reloads MCP servers.
+
+## Claude Code MCP Config
+
+```json
+{
+  "mcpServers": {
+    "gupshup": {
+      "command": "node",
+      "args": ["/absolute/path/to/gupshup-mcp/dist/index.js"],
       "env": {
         "GUPSHUP_USER_ID": "your-sms-user-id",
         "GUPSHUP_PASSWORD": "your-sms-password",
